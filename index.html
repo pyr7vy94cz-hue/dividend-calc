@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>월배당 계산기 — 내 배당금 월별 자동 계산</title>
+<meta name="description" content="회원가입 없이 쓰는 월배당 계산기. 종목과 수량만 넣으면 월별 예상 배당금(세후·원화 환산)과 배당 많은 달을 한눈에 보여드려요. 국내·미국 인기 배당주 37종 데이터 내장.">
+<meta property="og:title" content="월배당 계산기 — 내 배당금 월별 자동 계산">
+<meta property="og:description" content="종목·수량만 넣으면 월별 예상 배당금이 나와요. 국내·미국 배당주 37종 내장.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="월배당 계산기">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="90">📅</text></svg>'>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "월배당 계산기",
+  "alternateName": "배당금 캘린더 계산기",
+  "url": "https://pyr7vy94cz-hue.github.io/dividend-calc/"
+}
+</script>
+<style>
+  :root { --radius: 14px; }
+  body {
+    --bg: #f1f4f9;
+    --card: #ffffff;
+    --text: #16213a;
+    --sub: #5c6b86;
+    --line: #dde4ef;
+    --accent: #2e5aac;
+    --accent-soft: #e6edf9;
+    --gold: #f0b400;
+    --gold-soft: #fff6d9;
+    --bad: #b91c1c;
+  }
+  @media (prefers-color-scheme: dark) {
+    body {
+      --bg: #0e1420;
+      --card: #18202f;
+      --text: #e6ecf6;
+      --sub: #93a2bd;
+      --line: #29344a;
+      --accent: #6f9be8;
+      --accent-soft: #1c2a44;
+      --gold: #ffcb3d;
+      --gold-soft: #33290a;
+      --bad: #f87171;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  button { transition: transform .12s ease; }
+  button:active { transform: scale(0.94); }
+  body {
+    font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, "Malgun Gothic", sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 20px 16px 60px; }
+  header { text-align: center; padding: 18px 0 22px; }
+  header h1 { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.02em; }
+  header p { color: var(--sub); font-size: 0.9rem; margin-top: 6px; }
+
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+  .card h2 { font-size: 0.98rem; font-weight: 800; margin-bottom: 4px; letter-spacing: -0.01em; }
+  .card .hint { color: var(--sub); font-size: 0.8rem; margin-bottom: 12px; }
+
+  .add-row { display: grid; grid-template-columns: 1fr 84px auto; gap: 8px; }
+  .add-row input, .add-row select {
+    padding: 11px 12px; font-size: 16px; font-family: inherit;
+    border: 1px solid var(--line); border-radius: 10px;
+    background: var(--bg); color: var(--text); outline: none; width: 100%;
+  }
+  .add-row input:focus, .add-row select:focus { border-color: var(--accent); }
+  .add-row button {
+    padding: 11px 16px; border: 0; border-radius: 10px;
+    background: var(--accent); color: #fff; font-weight: 800; font-size: 0.92rem;
+    font-family: inherit; cursor: pointer; white-space: nowrap;
+  }
+  .list-hint { color: var(--sub); font-size: 0.78rem; margin: 10px 0 0; }
+  datalist { color: #000; }
+
+  .holdings { margin-top: 12px; display: flex; flex-direction: column; gap: 7px; }
+  .hold {
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--bg); border: 1px solid var(--line); border-radius: 11px;
+    padding: 10px 12px;
+  }
+  .hold .info { min-width: 0; }
+  .hold .nm { font-weight: 800; font-size: 0.95rem; }
+  .hold .sub { color: var(--sub); font-size: 0.78rem; margin-top: 1px; }
+  .hold .right { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+  .hold .amt { font-weight: 800; color: var(--accent); font-size: 0.92rem; }
+  .hold .del { border: 0; background: transparent; color: var(--sub); font-size: 1.15rem; cursor: pointer; line-height: 1; padding: 2px 4px; }
+  .hold .del:hover { color: var(--bad); }
+  .empty-guide { text-align: center; color: var(--sub); font-size: 0.88rem; padding: 14px 0 6px; }
+
+  .fx-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .fx-row label { font-size: 0.82rem; color: var(--sub); font-weight: 700; }
+  .fx-row input {
+    width: 110px; padding: 9px 11px; font-size: 15px; font-family: inherit; text-align: right;
+    border: 1px solid var(--line); border-radius: 9px; background: var(--bg); color: var(--text); outline: none;
+  }
+  .fx-row input:focus { border-color: var(--accent); }
+
+  .result { background: var(--accent-soft); border-radius: var(--radius); padding: 20px 16px; margin: 4px 0 12px; }
+  .result .top { text-align: center; margin-bottom: 14px; }
+  .result .label { font-size: 0.85rem; color: var(--sub); font-weight: 600; }
+  .result .value { font-size: 2rem; font-weight: 900; color: var(--accent); letter-spacing: -0.02em; }
+  .result .meta { font-size: 0.82rem; color: var(--sub); margin-top: 2px; }
+
+  .months { display: flex; flex-direction: column; gap: 5px; }
+  .m-row { display: grid; grid-template-columns: 34px 1fr 74px; gap: 8px; align-items: center; }
+  .m-row .mlab { font-size: 0.8rem; color: var(--sub); font-weight: 700; text-align: right; }
+  .m-row .mlab.now { color: var(--gold); }
+  .bar-track { background: var(--card); border-radius: 6px; height: 20px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--accent); border-radius: 6px; min-width: 2px; transition: width .3s ease; }
+  .bar-fill.now { background: var(--gold); }
+  .m-row .mval { font-size: 0.8rem; font-weight: 700; text-align: right; }
+
+  .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+  .sbox { background: var(--card); border-radius: 11px; padding: 12px; text-align: center; }
+  .sbox .sl { font-size: 0.76rem; color: var(--sub); font-weight: 600; }
+  .sbox .sv { font-size: 1.05rem; font-weight: 900; margin-top: 3px; letter-spacing: -0.01em; }
+
+  .cta {
+    display: block; text-align: center; text-decoration: none;
+    background: linear-gradient(135deg, #2e5aac, #1f3864); color: #fff;
+    border-radius: var(--radius); padding: 18px 16px; margin-top: 4px;
+  }
+  .cta .t { font-weight: 800; font-size: 1rem; }
+  .cta .d { font-size: 0.82rem; opacity: 0.85; margin-top: 4px; }
+  .cta .badge {
+    display: inline-block; background: var(--gold); color: #1f3864;
+    font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; margin-bottom: 8px;
+  }
+
+  footer { text-align: center; color: var(--sub); font-size: 0.78rem; margin-top: 28px; }
+  footer p + p { margin-top: 4px; }
+  footer a { color: var(--sub); }
+  .cross { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px 14px; justify-content: center; }
+  .cross a { text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>📅 월배당 계산기</h1>
+    <p>종목과 수량만 넣으면 월별 배당금이 나와요</p>
+  </header>
+
+  <div class="card">
+    <h2>1. 보유 종목 추가</h2>
+    <p class="hint">종목명을 입력해 고르거나(예: 삼성전자), 티커를 직접 넣어도 돼요. 수량 입력 후 추가를 눌러요.</p>
+    <div class="add-row">
+      <input type="text" id="stockInput" list="stockList" placeholder="종목명 / 티커" autocomplete="off">
+      <input type="number" id="qtyInput" placeholder="수량" min="0" inputmode="numeric">
+      <button id="addBtn">추가</button>
+    </div>
+    <datalist id="stockList"></datalist>
+    <p class="list-hint">국내 18종 + 미국 19종의 배당 데이터가 내장되어 있어요. 목록에 없는 종목은 이 도구에선 계산되지 않아요.</p>
+    <div class="holdings" id="holdings"></div>
+  </div>
+
+  <div class="card">
+    <div class="fx-row">
+      <label for="fxInput">달러 환율 (미국 주식 원화 환산)</label>
+      <input type="number" id="fxInput" value="1380" min="0" inputmode="numeric">
+    </div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="top">
+      <div class="label">연간 예상 배당금 (세후 · 원화)</div>
+      <div class="value" id="annualVal">₩0</div>
+      <div class="meta" id="annualMeta">종목을 추가하면 계산돼요</div>
+    </div>
+    <div class="months" id="months"></div>
+    <div class="summary-grid">
+      <div class="sbox"><div class="sl">월평균</div><div class="sv" id="avgVal">₩0</div></div>
+      <div class="sbox"><div class="sl">이번 달 예상</div><div class="sv" id="thisVal">₩0</div></div>
+    </div>
+  </div>
+
+  <a class="cta" href="https://ctee.kr/item/store/100564" id="ctaLink" target="_blank" rel="noopener">
+    <span class="badge">SheetLab</span>
+    <div class="t">실시간 시세까지, 전체 기능은 시트로 →</div>
+    <div class="d">현재가·평가손익·배당락일·리밸런싱까지 자동. 배당 캘린더 &amp; 포트폴리오 구글 시트</div>
+  </a>
+
+  <footer>
+    <p>세율 자동 적용(국내 15.4% / 미국 15%) · 배당 데이터는 2025년 지급 실적 기준 참고값(2026-07)이에요.</p>
+    <p>실제 배당은 기업 공시에 따라 달라질 수 있어요. 투자 판단의 책임은 본인에게 있어요.</p>
+    <div class="cross">
+      <a href="https://pyr7vy94cz-hue.github.io/">🧮 3초 계산기 홈</a>
+      <a href="https://pyr7vy94cz-hue.github.io/naesin-calc/">🎓 내신 계산기</a>
+      <a href="https://pyr7vy94cz-hue.github.io/dutchpay-calc/">💸 더치페이 계산기</a>
+    </div>
+  </footer>
+</div>
+
+<script>
+// 배당주 DB — [티커, 종목명, 통화, {월:주당배당(현지)}]  (2025 지급 실적 기준 참고값, 2026-07)
+const DB = [
+  ["KRX:005930","삼성전자","KRW",{4:363,5:361,8:361,11:361}],
+  ["KRX:005935","삼성전자우","KRW",{4:364,5:361,8:361,11:361}],
+  ["KRX:000660","SK하이닉스","KRW",{4:300,5:300,8:300,11:300}],
+  ["KRX:005380","현대차","KRW",{4:6000,5:2000,8:2000,11:2000}],
+  ["KRX:000270","기아","KRW",{4:5600}],
+  ["KRX:055550","신한지주","KRW",{4:540,5:540,8:540,11:540}],
+  ["KRX:105560","KB금융","KRW",{4:780,5:780,8:780,11:780}],
+  ["KRX:086790","하나금융지주","KRW",{4:900,5:900,8:900,11:900}],
+  ["KRX:316140","우리금융지주","KRW",{4:660,5:180,8:180,11:180}],
+  ["KRX:024110","기업은행","KRW",{4:984}],
+  ["KRX:017670","SK텔레콤","KRW",{4:1050,5:830,8:830,11:830}],
+  ["KRX:030200","KT","KRW",{4:500,5:500,8:500,11:500}],
+  ["KRX:032640","LG유플러스","KRW",{4:400,8:250}],
+  ["KRX:033780","KT&G","KRW",{4:4200,11:1200}],
+  ["KRX:005490","POSCO홀딩스","KRW",{4:2500,5:2500,8:2500,11:2500}],
+  ["KRX:035420","NAVER","KRW",{4:1290}],
+  ["KRX:088980","맥쿼리인프라","KRW",{2:385,8:385}],
+  ["KRX:458730","TIGER 미국배당다우존스","KRW",{1:45,2:45,3:45,4:45,5:45,6:45,7:45,8:45,9:45,10:45,11:45,12:45}],
+  ["NASDAQ:AAPL","애플","USD",{2:0.26,5:0.26,8:0.26,11:0.26}],
+  ["NASDAQ:MSFT","마이크로소프트","USD",{3:0.83,6:0.83,9:0.83,12:0.83}],
+  ["NASDAQ:NVDA","엔비디아","USD",{3:0.01,6:0.01,9:0.01,12:0.01}],
+  ["NYSE:KO","코카콜라","USD",{4:0.51,7:0.51,10:0.51,12:0.51}],
+  ["NASDAQ:PEP","펩시코","USD",{1:1.42,3:1.42,6:1.42,9:1.42}],
+  ["NYSE:JNJ","존슨앤드존슨","USD",{3:1.3,6:1.3,9:1.3,12:1.3}],
+  ["NYSE:PG","P&G","USD",{2:1.06,5:1.06,8:1.06,11:1.06}],
+  ["NYSE:O","리얼티인컴","USD",{1:0.264,2:0.264,3:0.264,4:0.264,5:0.264,6:0.264,7:0.264,8:0.264,9:0.264,10:0.264,11:0.264,12:0.264}],
+  ["NYSE:VZ","버라이즌","USD",{2:0.68,5:0.68,8:0.68,11:0.68}],
+  ["NYSE:T","AT&T","USD",{2:0.28,5:0.28,8:0.28,11:0.28}],
+  ["NYSE:XOM","엑슨모빌","USD",{3:0.99,6:0.99,9:0.99,12:0.99}],
+  ["NYSE:CVX","셰브론","USD",{3:1.71,6:1.71,9:1.71,12:1.71}],
+  ["NYSE:ABBV","애브비","USD",{2:1.64,5:1.64,8:1.64,11:1.64}],
+  ["NYSE:MCD","맥도날드","USD",{3:1.77,6:1.77,9:1.77,12:1.77}],
+  ["NYSE:JPM","JP모건","USD",{1:1.4,4:1.4,7:1.4,10:1.4}],
+  ["NYSE:HD","홈디포","USD",{3:2.3,6:2.3,9:2.3,12:2.3}],
+  ["NYSE:V","비자","USD",{3:0.59,6:0.59,9:0.59,12:0.59}],
+  ["NYSEARCA:SCHD","슈왑 미국배당주 ETF","USD",{3:0.26,6:0.26,9:0.26,12:0.26}],
+  ["NYSEARCA:JEPI","JP모건 커버드콜 ETF","USD",{1:0.38,2:0.38,3:0.38,4:0.38,5:0.38,6:0.38,7:0.38,8:0.38,9:0.38,10:0.38,11:0.38,12:0.38}],
+];
+const byName = {}, byTicker = {};
+DB.forEach(d => { byName[d[1]] = d; byTicker[d[0].toUpperCase()] = d; });
+const TAX = { KRW: 0.154, USD: 0.15 };
+const MONTHS = ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"];
+const won = n => "₩" + Math.round(n).toLocaleString("ko-KR");
+
+// datalist 채우기
+const dl = document.getElementById("stockList");
+DB.forEach(d => { const o = document.createElement("option"); o.value = d[1]; o.label = d[0]; dl.appendChild(o); });
+
+let holdings = [];
+try { holdings = JSON.parse(localStorage.getItem("dividend.v1")) || []; } catch(e){}
+let fx = 1380;
+const fxInput = document.getElementById("fxInput");
+const savedFx = localStorage.getItem("dividend.fx");
+if (savedFx) { fx = +savedFx; fxInput.value = fx; }
+
+function resolve(text) {
+  const t = text.trim();
+  if (!t) return null;
+  if (byName[t]) return byName[t];
+  if (byTicker[t.toUpperCase()]) return byTicker[t.toUpperCase()];
+  // 부분 일치(종목명 앞부분)
+  const hit = DB.find(d => d[1].replace(/\s/g,"").startsWith(t.replace(/\s/g,"")));
+  return hit || null;
+}
+
+function save() {
+  localStorage.setItem("dividend.v1", JSON.stringify(holdings));
+  localStorage.setItem("dividend.fx", String(fx));
+}
+
+function addHolding() {
+  const raw = document.getElementById("stockInput").value;
+  const qty = Math.floor(+document.getElementById("qtyInput").value);
+  const stock = resolve(raw);
+  if (!stock) { alert("목록에 있는 종목명이나 티커를 입력해 주세요.\n(내장 37종만 계산돼요)"); return; }
+  if (!qty || qty <= 0) { alert("수량을 입력해 주세요."); return; }
+  const existing = holdings.find(h => h.ticker === stock[0]);
+  if (existing) existing.qty += qty;
+  else holdings.push({ ticker: stock[0], qty });
+  document.getElementById("stockInput").value = "";
+  document.getElementById("qtyInput").value = "";
+  document.getElementById("stockInput").focus();
+  save(); render();
+}
+
+function monthlyKRW(stock, qty) {
+  // 종목의 월별 세후·원화 배당 배열(12) 반환
+  const [ticker, name, cur, sched] = stock;
+  const tax = TAX[cur], rate = cur === "USD" ? fx : 1;
+  const arr = new Array(12).fill(0);
+  for (let m = 1; m <= 12; m++) {
+    const per = sched[m] || 0;
+    arr[m-1] = per * qty * (1 - tax) * rate;
+  }
+  return arr;
+}
+
+function render() {
+  // 보유 목록
+  const box = document.getElementById("holdings");
+  box.innerHTML = "";
+  if (!holdings.length) {
+    box.innerHTML = '<div class="empty-guide">아직 추가한 종목이 없어요.<br>위에서 종목과 수량을 넣어 보세요.</div>';
+  }
+  const totalMonthly = new Array(12).fill(0);
+  holdings.forEach((h, i) => {
+    const stock = byTicker[h.ticker.toUpperCase()];
+    if (!stock) return;
+    const arr = monthlyKRW(stock, h.qty);
+    const annual = arr.reduce((a,b)=>a+b, 0);
+    arr.forEach((v,idx) => totalMonthly[idx] += v);
+    const el = document.createElement("div");
+    el.className = "hold";
+    el.innerHTML = `<div class="info">
+        <div class="nm">${stock[1]}</div>
+        <div class="sub">${stock[0]} · ${h.qty.toLocaleString()}주 · 연 ${won(annual)}</div>
+      </div>
+      <div class="right">
+        <span class="amt">${won(annual)}</span>
+        <button class="del" data-i="${i}" aria-label="삭제">×</button>
+      </div>`;
+    box.appendChild(el);
+  });
+  box.querySelectorAll(".del").forEach(b => b.onclick = () => {
+    holdings.splice(+b.dataset.i, 1); save(); render();
+  });
+
+  // 결과
+  const annual = totalMonthly.reduce((a,b)=>a+b, 0);
+  const nowM = new Date().getMonth(); // 0-based
+  document.getElementById("annualVal").textContent = won(annual);
+  document.getElementById("annualMeta").textContent = holdings.length
+    ? `보유 ${holdings.length}종목 기준 · 세후·원화 환산` : "종목을 추가하면 계산돼요";
+  document.getElementById("avgVal").textContent = won(annual/12);
+  document.getElementById("thisVal").textContent = won(totalMonthly[nowM]);
+
+  const maxV = Math.max(...totalMonthly, 1);
+  const mBox = document.getElementById("months");
+  mBox.innerHTML = "";
+  totalMonthly.forEach((v, idx) => {
+    const isNow = idx === nowM;
+    const row = document.createElement("div");
+    row.className = "m-row";
+    row.innerHTML = `<div class="mlab ${isNow?'now':''}">${MONTHS[idx]}</div>
+      <div class="bar-track"><div class="bar-fill ${isNow?'now':''}" style="width:${Math.max(v/maxV*100, v>0?3:0)}%"></div></div>
+      <div class="mval">${v>0?won(v):'-'}</div>`;
+    mBox.appendChild(row);
+  });
+}
+
+document.getElementById("addBtn").onclick = addHolding;
+document.getElementById("stockInput").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("qtyInput").focus(); });
+document.getElementById("qtyInput").addEventListener("keydown", e => { if (e.key === "Enter") addHolding(); });
+fxInput.addEventListener("input", () => { fx = +fxInput.value || 0; save(); render(); });
+
+render();
+</script>
+</body>
+</html>
