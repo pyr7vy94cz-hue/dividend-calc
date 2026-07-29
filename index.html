@@ -10,13 +10,34 @@
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="월배당 계산기">
 <link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" font-size="90">📅</text></svg>'>
+<link rel="canonical" href="https://pyr7vy94cz-hue.github.io/dividend-calc/">
+<!-- 네이버 웹마스터도구 등록 후, 발급받은 값으로 아래 content를 교체하세요 -->
+<meta name="naver-site-verification" content="">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebSite",
+  "@type": "WebApplication",
   "name": "월배당 계산기",
   "alternateName": "배당금 캘린더 계산기",
-  "url": "https://pyr7vy94cz-hue.github.io/dividend-calc/"
+  "url": "https://pyr7vy94cz-hue.github.io/dividend-calc/",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Web",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" },
+  "description": "종목과 수량만 입력하면 월별 예상 배당금(세후·원화)을 자동 계산하는 무료 도구. 국내·미국 인기 배당주 37종 데이터 내장."
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "배당금은 어떻게 계산하나요?",
+      "acceptedAnswer": { "@type": "Answer", "text": "종목의 주당 배당금 × 보유 수량에서 배당소득세(국내 15.4%, 미국 15%)를 뺀 뒤, 미국 주식은 환율로 원화 환산합니다. 이 계산기는 종목과 수량만 입력하면 이 과정을 자동으로 처리해 월별로 보여줍니다." } },
+    { "@type": "Question", "name": "월배당 주식은 무엇인가요?",
+      "acceptedAnswer": { "@type": "Answer", "text": "리얼티인컴(O), JEPI, TIGER 미국배당다우존스처럼 매달 배당(분배금)을 지급하는 종목을 월배당주라고 합니다. 분기배당주와 섞으면 매달 현금 흐름을 만들 수 있습니다." } },
+    { "@type": "Question", "name": "배당소득세는 얼마인가요?",
+      "acceptedAnswer": { "@type": "Answer", "text": "국내 주식 배당은 15.4%(소득세 14% + 지방세 1.4%), 미국 주식 배당은 현지에서 15% 원천징수됩니다. 이 계산기는 세후 금액을 기준으로 보여줍니다." } }
+  ]
 }
 </script>
 <style>
@@ -134,6 +155,10 @@
     font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 999px; margin-bottom: 8px;
   }
 
+  .info-sec { margin-top: 4px; }
+  .info-sec p { font-size: 0.86rem; color: var(--sub); }
+  .info-sec .faq .q { font-weight: 800; color: var(--text); font-size: 0.88rem; margin-top: 12px; }
+  .info-sec .faq .a { margin-top: 3px; }
   footer { text-align: center; color: var(--sub); font-size: 0.78rem; margin-top: 28px; }
   footer p + p { margin-top: 4px; }
   footer a { color: var(--sub); }
@@ -186,6 +211,21 @@
     <div class="t">실시간 시세까지, 전체 기능은 시트로 →</div>
     <div class="d">현재가·평가손익·배당락일·리밸런싱까지 자동. 배당 캘린더 &amp; 포트폴리오 구글 시트</div>
   </a>
+
+  <div class="card info-sec">
+    <h2>월배당 계산기란?</h2>
+    <p>보유한 배당주의 <b>월별 예상 배당금</b>을 한눈에 보여주는 무료 도구예요. 종목마다 배당을 주는 달이 달라서 직접 계산하면 헷갈리는데, 종목과 수량만 넣으면 세금(국내 15.4% / 미국 15%)과 환율까지 자동으로 반영해 세후·원화 기준으로 계산해 드려요. 회원가입도, 앱 설치도 필요 없어요.</p>
+
+    <h2 style="margin-top:16px">자주 묻는 질문</h2>
+    <div class="faq">
+      <p class="q">Q. 배당금은 어떻게 계산되나요?</p>
+      <p class="a">주당 배당금 × 보유 수량에서 배당소득세를 뺀 뒤, 미국 주식은 환율로 원화 환산합니다. 종목과 수량만 넣으면 자동으로 계산돼요.</p>
+      <p class="q">Q. 매달 배당받는 포트폴리오를 만들 수 있나요?</p>
+      <p class="a">리얼티인컴·JEPI·TIGER 미국배당다우존스 같은 월배당주와 분기배당주를 섞으면 매달 현금 흐름을 만들 수 있어요. 이 계산기로 어느 달이 비는지 확인해 보세요.</p>
+      <p class="q">Q. 실시간 주가와 배당락일도 볼 수 있나요?</p>
+      <p class="a">이 도구는 배당금 계산에 집중한 무료 버전이에요. 실시간 현재가·평가손익·배당락일·리밸런싱까지 자동으로 관리하려면 아래 SheetLab 구글 시트를 확인해 보세요.</p>
+    </div>
+  </div>
 
   <footer>
     <p>세율 자동 적용(국내 15.4% / 미국 15%) · 배당 데이터는 2025년 지급 실적 기준 참고값(2026-07)이에요.</p>
